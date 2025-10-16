@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import User, { IUser } from '../models/User.model';
 import { config } from '../config/config';
 
@@ -84,15 +84,13 @@ export class AuthService {
       role: user.role,
     };
 
-    // @ts-ignore - JWT types issue with string literals
     const token = jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expire,
-    });
+      expiresIn: config.jwt.expire as string,
+    } as jwt.SignOptions);
 
-    // @ts-ignore - JWT types issue with string literals
     const refreshToken = jwt.sign(payload, config.jwt.refreshSecret, {
-      expiresIn: config.jwt.refreshExpire,
-    });
+      expiresIn: config.jwt.refreshExpire as string,
+    } as jwt.SignOptions);
 
     return { token, refreshToken };
   }

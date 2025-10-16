@@ -2,6 +2,24 @@
 
 Backend API for the Retail Relay e-commerce platform built with Node.js, Express, TypeScript, and MongoDB.
 
+## 🚀 Quick Deploy to Vercel
+
+**Ready to deploy!** This backend is fully configured for Vercel serverless deployment.
+
+```bash
+# Run pre-deployment check
+./pre-deploy-check.sh
+
+# Deploy to Vercel
+vercel --prod
+```
+
+📚 **Deployment Guides:**
+- [Quick Deploy (3 steps)](./QUICK_DEPLOY.md) - Start here!
+- [Complete Guide](./VERCEL_DEPLOYMENT_GUIDE.md) - Detailed instructions
+- [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md) - Task checklist
+- [Changes Summary](./VERCEL_CHANGES_SUMMARY.md) - What was optimized
+
 ## Features
 
 - 🔐 JWT Authentication (login, register, profile)
@@ -54,11 +72,22 @@ ALLOWED_ORIGINS=http://localhost:8080,http://localhost:5173
 ```bash
 npm run dev
 ```
+Server runs on http://localhost:5002
 
-### Production Mode
+### Production Mode (Local)
 ```bash
 npm run build
 npm start
+```
+
+### Type Check
+```bash
+npm run type-check
+```
+
+### Pre-Deployment Check
+```bash
+./pre-deploy-check.sh
 ```
 
 ### Seed Database
@@ -92,31 +121,36 @@ This will create:
 
 ```
 backend/
+├── api/                 # Vercel serverless functions ⚡
+│   └── index.ts        # Serverless entry point
 ├── src/
-│   ├── config/          # Configuration files
+│   ├── config/         # Configuration files
 │   │   ├── config.ts
-│   │   └── database.ts
-│   ├── controllers/     # Route controllers
+│   │   └── database.ts # Optimized for serverless 🔥
+│   ├── controllers/    # Route controllers
 │   │   ├── auth.controller.ts
 │   │   └── product.controller.ts
-│   ├── middleware/      # Custom middleware
+│   ├── middleware/     # Custom middleware
 │   │   ├── auth.ts
 │   │   └── error.ts
-│   ├── models/          # Mongoose models
-│   │   ├── user.model.ts
-│   │   └── product.model.ts
-│   ├── routes/          # API routes
+│   ├── models/         # Mongoose models
+│   │   ├── User.model.ts
+│   │   └── Product.model.ts
+│   ├── routes/         # API routes
 │   │   ├── auth.routes.ts
 │   │   └── product.routes.ts
-│   ├── services/        # Business logic
+│   ├── services/       # Business logic
 │   │   ├── auth.service.ts
 │   │   └── product.service.ts
-│   ├── scripts/         # Utility scripts
+│   ├── scripts/        # Utility scripts
 │   │   └── seed.ts
-│   ├── app.ts           # Express app setup
-│   └── server.ts        # Server entry point
-├── .env.example
-├── .gitignore
+│   ├── app.ts          # Express app setup
+│   └── server.ts       # Server entry point
+├── .env.example        # Environment template
+├── .vercelignore       # Vercel ignore file
+├── vercel.json         # Vercel configuration
+├── pre-deploy-check.sh # Deployment checker
+├── QUICK_DEPLOY.md     # Quick deployment guide
 ├── package.json
 └── tsconfig.json
 ```
