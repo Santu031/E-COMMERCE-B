@@ -1,4 +1,4 @@
-import Product, { IProduct } from '../models/product.model';
+import Product, { IProduct } from '../models/Product.model';
 
 interface GetProductsQuery {
   page?: number;

@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User, { IUser } from '../models/user.model';
+import User, { IUser } from '../models/User.model';
 import { config } from '../config/config';
 
 interface RegisterInput {
@@ -84,10 +84,12 @@ export class AuthService {
       role: user.role,
     };
 
+    // @ts-ignore - JWT types issue with string literals
     const token = jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expire,
     });
 
+    // @ts-ignore - JWT types issue with string literals
     const refreshToken = jwt.sign(payload, config.jwt.refreshSecret, {
       expiresIn: config.jwt.refreshExpire,
     });

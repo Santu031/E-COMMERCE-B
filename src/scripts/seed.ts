@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import Product from '../models/product.model';
-import User from '../models/user.model';
+import Product from '../models/Product.model';
+import User from '../models/User.model';
 import bcrypt from 'bcryptjs';
 
 dotenv.config();
