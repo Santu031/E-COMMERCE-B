@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "retail-relay-backend",
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
