@@ -1,6 +1,12 @@
 {
   "version": 2,
   "name": "retail-relay-backend",
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
@@ -9,11 +15,5 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "api/index.ts": {
-      "maxDuration": 10
-    }
-  },
-  "regions": ["iad1"]
+  }
 }
