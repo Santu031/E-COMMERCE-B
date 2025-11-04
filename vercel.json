@@ -2,14 +2,14 @@
   "version": 2,
   "name": "retail-relay-backend",
   "functions": {
-    "api/index.js": {
+    "api/index.ts": {
       "runtime": "@vercel/node@3.0.13"
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/index.js"
+      "dest": "api/index.ts"
     }
   ],
   "env": {
