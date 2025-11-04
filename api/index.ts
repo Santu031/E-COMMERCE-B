@@ -1,5 +1,5 @@
-import app from '../src/app';
-import { connectDB } from '../src/config/database';
+import app from '../src/app.js';
+import { connectDB } from '../src/config/database.js';
 import { Request, Response } from 'express';
 
 // Track connection state for serverless optimization
