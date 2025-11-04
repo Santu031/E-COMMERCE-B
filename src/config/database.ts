@@ -1,48 +1,46 @@
 import mongoose from 'mongoose';
 import { config } from './config';
 
-// Optimize for serverless environments
-if (mongoose.connection.readyState === 0) {
-  mongoose.set('strictQuery', false);
-  // Buffer commands until connection is established
-  mongoose.set('bufferCommands', false);
-}
-
-// Connection options for better reliability
+// Connection options optimized for serverless environments
 const connectionOptions = {
-  // Connection pool settings
-  maxPoolSize: 10, // Maximum number of connections in the pool
-  minPoolSize: 2,  // Minimum number of connections in the pool
+  // Connection pool settings - keep small for serverless
+  maxPoolSize: 5,
+  minPoolSize: 1,
   
   // Timeout settings
-  serverSelectionTimeoutMS: 5000,  // Timeout for selecting server
-  socketTimeoutMS: 45000,          // Close sockets after this time
-  connectTimeoutMS: 30000,         // Timeout for initial connection
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 30000,
   
   // Retry settings
   retryWrites: true,
   retryReads: true,
   
   // Server settings
-  autoIndex: config.env === 'development', // Only auto-index in development
+  autoIndex: false, // Disable auto-index in production
   
   // Keep alive settings
-  maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+  maxIdleTimeMS: 30000,
 };
 
 export const connectDB = async (): Promise<void> => {
   try {
-    // Reuse existing connection if available (important for serverless)
+    // In serverless environments, we want to reuse connections
+    // Check if we're already connected
     if (mongoose.connection.readyState === 1) {
       console.log('✅ Using existing MongoDB connection');
       return;
     }
 
+    // Check if connection is in progress
     if (mongoose.connection.readyState === 2) {
       console.log('⏳ MongoDB connection in progress...');
+      // Wait a bit and then return
+      await new Promise(resolve => setTimeout(resolve, 1000));
       return;
     }
 
+    // Connect to MongoDB
     await mongoose.connect(config.mongoUri, connectionOptions);
     console.log('✅ MongoDB connected successfully');
     
@@ -57,7 +55,7 @@ export const connectDB = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
-    // Don't exit process in serverless environment
+    // Don't throw error in production to prevent function crashes
     if (config.env !== 'production') {
       throw error;
     }

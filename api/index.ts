@@ -19,25 +19,10 @@ const ensureDatabaseConnection = async () => {
   } catch (error) {
     console.error('❌ Database connection failed:', error);
     connectionPromise = null;
+    throw error;
   } finally {
     isConnecting = false;
   }
-};
-
-// Create a wrapper to convert Vercel's request/response to Express
-const expressHandler = (req: Request, res: Response) => {
-  return new Promise((resolve) => {
-    const originalSend = res.send;
-    res.send = function (body) {
-      resolve(body);
-      return originalSend.call(this, body);
-    };
-    
-    // Handle end event for responses without body
-    res.on('finish', () => resolve(null));
-    
-    app(req, res);
-  });
 };
 
 // Serverless function handler
@@ -47,7 +32,7 @@ const handler = async (req: Request, res: Response) => {
     await ensureDatabaseConnection();
     
     // Let Express handle the request
-    await expressHandler(req, res);
+    app(req, res);
   } catch (error) {
     console.error('Handler error:', error);
     res.status(500).json({ 
