@@ -24,6 +24,22 @@ const ensureDatabaseConnection = async () => {
   }
 };
 
+// Create a wrapper to convert Vercel's request/response to Express
+const expressHandler = (req: Request, res: Response) => {
+  return new Promise((resolve) => {
+    const originalSend = res.send;
+    res.send = function (body) {
+      resolve(body);
+      return originalSend.call(this, body);
+    };
+    
+    // Handle end event for responses without body
+    res.on('finish', () => resolve(null));
+    
+    app(req, res);
+  });
+};
+
 // Serverless function handler
 const handler = async (req: Request, res: Response) => {
   try {
@@ -31,7 +47,7 @@ const handler = async (req: Request, res: Response) => {
     await ensureDatabaseConnection();
     
     // Let Express handle the request
-    app(req, res);
+    await expressHandler(req, res);
   } catch (error) {
     console.error('Handler error:', error);
     res.status(500).json({ 
