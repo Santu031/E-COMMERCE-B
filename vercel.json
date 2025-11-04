@@ -3,7 +3,7 @@
   "name": "retail-relay-backend",
   "functions": {
     "api/index.ts": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node@3.0.13"
     }
   },
   "routes": [
