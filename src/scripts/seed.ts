@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import User from '../models/User.model';
+import User from '@models/User.model';
 import Product from '../models/Product.model';
 import connectDB from '../config/db';
 

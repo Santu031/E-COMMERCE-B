@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
-import { IUser } from '../models/User.model';
+import { IUser } from '@models/User.model';
 
 export interface JwtPayload {
   id: string;
