@@ -1,107 +1,67 @@
-import bcrypt from 'bcryptjs';
-import jwt, { SignOptions } from 'jsonwebtoken';
-import User, { IUser } from '../models/User.model';
-import { config } from '../config/config';
+import User, { IUser } from '@models/User.model';
+import { generateToken } from '../utils/jwt.utils';
 
-interface RegisterInput {
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface AuthTokens {
+export interface LoginResult {
+  user: IUser;
   token: string;
-  refreshToken: string;
 }
 
-export class AuthService {
-  async register(input: RegisterInput): Promise<{ user: IUser; tokens: AuthTokens }> {
-    const { email, password, firstName, lastName } = input;
-
-    // Check if user exists
+export const authService = {
+  // Register a new user
+  register: async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<LoginResult> => {
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new Error('User already exists with this email');
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = await User.create({
+    // Create new user
+    const user = new User({
       email,
-      password: hashedPassword,
+      password,
       firstName,
-      lastName,
-      role: 'CUSTOMER',
+      lastName
     });
 
-    // Generate tokens
-    const tokens = this.generateTokens(user);
+    await user.save();
 
-    return { user, tokens };
-  }
+    // Generate token
+    const token = generateToken(user);
 
-  async login(input: LoginInput): Promise<{ user: IUser; tokens: AuthTokens }> {
-    const { email, password } = input;
+    return { user, token };
+  },
 
-    // Find user
+  // Login user
+  login: async (email: string, password: string): Promise<LoginResult> => {
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
     // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       throw new Error('Invalid credentials');
     }
 
-    // Generate tokens
-    const tokens = this.generateTokens(user);
+    // Generate token
+    const token = generateToken(user);
 
-    return { user, tokens };
-  }
+    return { user, token };
+  },
 
-  async getProfile(userId: string): Promise<IUser> {
+  // Get user profile
+  getProfile: async (userId: string): Promise<IUser> => {
     const user = await User.findById(userId).select('-password');
     if (!user) {
       throw new Error('User not found');
     }
     return user;
   }
-
-  generateTokens(user: IUser): AuthTokens {
-    const payload = {
-      userId: user._id,
-      email: user.email,
-      role: user.role,
-    };
-
-    const token = jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expire as string,
-    } as jwt.SignOptions);
-
-    const refreshToken = jwt.sign(payload, config.jwt.refreshSecret, {
-      expiresIn: config.jwt.refreshExpire as string,
-    } as jwt.SignOptions);
-
-    return { token, refreshToken };
-  }
-
-  verifyToken(token: string): any {
-    try {
-      return jwt.verify(token, config.jwt.secret);
-    } catch (error) {
-      throw new Error('Invalid token');
-    }
-  }
-}
-
-export default new AuthService();
+};

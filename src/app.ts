@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -68,4 +68,5 @@ app.use((req, res) => {
 // Error handler
 app.use(errorHandler);
 
+// Export as Express request handler for Vercel
 export default app;

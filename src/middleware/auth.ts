@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import authService from '../services/auth.service';
+import { authService } from '../services/auth.service';
+import { verifyToken } from '../utils/jwt.utils';
 
 declare global {
   namespace Express {
@@ -26,7 +27,15 @@ export const authenticate = async (
     }
 
     const token = authHeader.substring(7);
-    const decoded = authService.verifyToken(token);
+    const decoded = verifyToken(token);
+    
+    if (!decoded) {
+      res.status(401).json({
+        success: false,
+        message: 'Invalid or expired token',
+      });
+      return;
+    }
 
     req.user = decoded;
     next();

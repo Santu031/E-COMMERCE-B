@@ -26,6 +26,11 @@ export const config = {
   cors: {
     allowedOrigins: process.env.ALLOWED_ORIGINS 
       ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-      : ['http://localhost:8080', 'http://localhost:5173'],
+      : [
+          'http://localhost:8080', 
+          'http://localhost:5173', 
+          'http://localhost:3000',
+          'https://e-commerce-f-omega.vercel.app'
+        ],
   },
 };

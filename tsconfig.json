@@ -14,7 +14,11 @@
     "declaration": false,
     "sourceMap": false,
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "baseUrl": ".",
+    "paths": {
+      "@models/*": ["src/models/*"]
+    }
   },
   "include": ["src/**/*", "api/**/*"],
   "exclude": ["node_modules", "dist"]

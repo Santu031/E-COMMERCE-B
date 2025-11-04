@@ -20,6 +20,6 @@
   ],
   "env": {
     "NODE_ENV": "production",
-    "ALLOWED_ORIGINS": "https://e-commerce-f-omega.vercel.app,http://localhost:8080,http://localhost:5173"
+    "ALLOWED_ORIGINS": "https://e-commerce-f-omega.vercel.app,http://localhost:8080,http://localhost:5173,http://localhost:3000"
   }
 }

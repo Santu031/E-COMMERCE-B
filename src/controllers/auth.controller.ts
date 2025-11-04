@@ -1,92 +1,102 @@
 import { Request, Response } from 'express';
-import authService from '../services/auth.service';
+import { authService, LoginResult } from '../services/auth.service';
+import { IUser } from '@models/User.model';
 
-export class AuthController {
-  async register(req: Request, res: Response): Promise<void> {
+// Send response helper
+const sendResponse = (res: Response, success: boolean, data: any, message: string, statusCode = 200) => {
+  res.status(statusCode).json({
+    success,
+    message,
+    data
+  });
+};
+
+export const authController = {
+  // Register a new user
+  register: async (req: Request, res: Response) => {
     try {
       const { email, password, firstName, lastName } = req.body;
-
-      const { user, tokens } = await authService.register({
-        email,
-        password,
-        firstName,
-        lastName,
-      });
-
-      res.status(201).json({
-        success: true,
-        message: 'User registered successfully',
-        data: {
-          user: {
-            _id: user._id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
-          },
-          token: tokens.token,
-          refreshToken: tokens.refreshToken,
-        },
-      });
+      
+      // Validate required fields
+      if (!email || !password || !firstName || !lastName) {
+        return sendResponse(res, false, null, 'All fields are required', 400);
+      }
+      
+      // Validate password length
+      if (password.length < 6) {
+        return sendResponse(res, false, null, 'Password must be at least 6 characters', 400);
+      }
+      
+      const result: LoginResult = await authService.register(email, password, firstName, lastName);
+      
+      // Remove password from response
+      const userResponse = {
+        _id: result.user._id,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        role: result.user.role
+      };
+      
+      sendResponse(res, true, { 
+        user: userResponse, 
+        token: result.token 
+      }, 'User registered successfully', 201);
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        message: error.message,
-      });
+      sendResponse(res, false, null, error.message || 'Registration failed', 400);
     }
-  }
+  },
 
-  async login(req: Request, res: Response): Promise<void> {
+  // Login user
+  login: async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
-
-      const { user, tokens } = await authService.login({ email, password });
-
-      res.json({
-        success: true,
-        message: 'Login successful',
-        data: {
-          user: {
-            _id: user._id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
-          },
-          token: tokens.token,
-          refreshToken: tokens.refreshToken,
-        },
-      });
+      
+      // Validate required fields
+      if (!email || !password) {
+        return sendResponse(res, false, null, 'Email and password are required', 400);
+      }
+      
+      const result: LoginResult = await authService.login(email, password);
+      
+      // Remove password from response
+      const userResponse = {
+        _id: result.user._id,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        role: result.user.role
+      };
+      
+      sendResponse(res, true, { 
+        user: userResponse, 
+        token: result.token 
+      }, 'Login successful');
     } catch (error: any) {
-      res.status(401).json({
-        success: false,
-        message: error.message,
-      });
+      sendResponse(res, false, null, error.message || 'Login failed', 401);
     }
-  }
+  },
 
-  async getProfile(req: Request, res: Response): Promise<void> {
+  // Get user profile
+  getProfile: async (req: Request, res: Response) => {
     try {
-      const userId = req.user.userId;
-      const user = await authService.getProfile(userId);
-
-      res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-        },
-      });
+      // Assuming user ID is attached to req.user by auth middleware
+      const userId = (req as any).user.id;
+      
+      const user: IUser = await authService.getProfile(userId);
+      
+      // Remove password from response
+      const userResponse = {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role
+      };
+      
+      sendResponse(res, true, userResponse, 'Profile fetched successfully');
     } catch (error: any) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
+      sendResponse(res, false, null, error.message || 'Failed to fetch profile', 404);
     }
   }
-}
-
-export default new AuthController();
+};
